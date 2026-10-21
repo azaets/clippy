@@ -1,4 +1,11 @@
+<div align="center">
+
+<p><img src="assets/icon.svg" alt="Clippy app icon" width="128"></p>
+
 # Clippy
+
+
+</div>
 
 A tiny macOS menu bar app that changes the text on your clipboard in one click. It has no Dock icon, no windows and no background polling, so it idles at about 0% CPU.
 
