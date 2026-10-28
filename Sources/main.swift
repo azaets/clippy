@@ -4,11 +4,46 @@ import ServiceManagement
 @MainActor final class App: NSObject, NSMenuDelegate {
     let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     let login: NSMenuItem
+    // hover preview: a borderless panel to the right of the highlighted transform item (3 lines of the result + a count)
+    let preview = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 170, height: 96), styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
+    let previewText = NSTextField(wrappingLabelWithString: "")
+    let previewCount = NSTextField(labelWithString: "")
+    let previewStack: NSStackView
 
     override init() {
         let menu = NSMenu()
         login = NSMenuItem(title: "Launch at Login", action: #selector(toggleLogin), keyEquivalent: "")
+        previewStack = NSStackView()
         super.init()
+        preview.level = .popUpMenu
+        preview.isOpaque = false
+        preview.backgroundColor = .clear
+        preview.hasShadow = true
+        preview.ignoresMouseEvents = true
+        let box = NSVisualEffectView(frame: preview.contentView!.bounds)
+        box.material = .menu
+        box.state = .active
+        box.wantsLayer = true
+        box.layer?.cornerRadius = 8
+        box.layer?.masksToBounds = true
+        preview.contentView = box
+        let header = NSTextField(labelWithString: "PREVIEW")
+        header.font = .systemFont(ofSize: 10, weight: .semibold)
+        header.textColor = .secondaryLabelColor
+        previewText.font = .systemFont(ofSize: 11)
+        previewText.maximumNumberOfLines = 3  // wraps, then ellipsizes the third line; a truncating lineBreakMode would stop the wrapping
+        previewText.preferredMaxLayoutWidth = 150
+        previewCount.font = .systemFont(ofSize: 10)
+        previewCount.textColor = .secondaryLabelColor
+        let stack = previewStack
+        stack.setViews([header, previewText, previewCount], in: .top)
+        stack.orientation = .vertical
+        stack.alignment = .leading
+        stack.spacing = 5
+        stack.edgeInsets = NSEdgeInsets(top: 8, left: 10, bottom: 8, right: 10)
+        stack.frame = box.bounds
+        stack.autoresizingMask = [.width, .height]
+        box.addSubview(stack)
         // shortcut: capitalized lowercases the rest of each word ("iPhone NASA" -> "Iphone Nasa", "3rd" -> "3Rd"), upgrade if acronyms matter
         let transforms: [(String, (String) -> String)] = [
             ("UPPERCASE", { $0.uppercased() }), ("lowercase", { $0.lowercased() }),
@@ -53,13 +88,35 @@ import ServiceManagement
         item.button?.image = glyph
     }
 
-    @objc func transform(_ sender: NSMenuItem) {
+    func clipboardText() -> String? {
         let pb = NSPasteboard.general
         // bail on files/images: Finder and "Copy Image" also put text on the pasteboard, and clearContents would wipe them
-        guard pb.availableType(from: [.fileURL, .tiff, .png]) == nil, let s = pb.string(forType: .string), let f = sender.representedObject as? (String) -> String else { return }
+        guard pb.availableType(from: [.fileURL, .tiff, .png]) == nil else { return nil }
+        return pb.string(forType: .string)
+    }
+
+    @objc func transform(_ sender: NSMenuItem) {
+        guard let s = clipboardText(), let f = sender.representedObject as? (String) -> String else { return }
+        let pb = NSPasteboard.general
         pb.clearContents()
         pb.setString(f(s), forType: .string)
     }
+
+    func menu(_ menu: NSMenu, willHighlight item: NSMenuItem?) {
+        guard let item, let f = item.representedObject as? (String) -> String, let s = clipboardText(), let bar = self.item.button?.window, let screen = bar.screen else { return preview.orderOut(nil) }
+        previewText.stringValue = f(String(s.prefix(200)))  // 3 lines never show more than this
+        previewCount.stringValue = "\(s.count.formatted()) characters"
+        preview.setContentSize(NSSize(width: 170, height: previewStack.fittingSize.height))  // 1 to 3 lines tall, no empty space
+        // the menu hangs below the status item, left-aligned with it; flip the card left when the status item is near the screen edge
+        var x = bar.frame.minX + menu.size.width + 6
+        if x + preview.frame.width > screen.frame.maxX { x = bar.frame.minX - 6 - preview.frame.width }
+        // shortcut: row offset assumes equal row heights (the separator is shorter), upgrade if the card drifts off the hovered item
+        let row = menu.size.height / CGFloat(menu.items.count) * CGFloat(menu.index(of: item))
+        preview.setFrameTopLeftPoint(NSPoint(x: x, y: bar.frame.minY - row))
+        preview.orderFront(nil)
+    }
+
+    func menuDidClose(_ menu: NSMenu) { preview.orderOut(nil) }
 
     @objc func toggleLogin() {
         let s = SMAppService.mainApp
