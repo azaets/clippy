@@ -25,7 +25,7 @@ A tiny macOS menu bar app that changes the text on your clipboard in one click. 
 
 <p align="center"><img src="assets/mockup.svg" alt="Clippy menu with the Title Case option hovered and a preview of the result beside it" width="620"></p>
 
-The preview shows at most three lines of the transformed text plus the clipboard's character count, so a large clipboard never fills the screen.
+The preview shows at most three lines of the transformed text, fading out where it is cut off, plus the clipboard's character count, so a large clipboard never fills the screen.
 
 | You copy | You choose | You paste |
 | --- | --- | --- |

@@ -1,4 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="620" height="260" viewBox="0 0 620 260" font-family="-apple-system, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif" font-size="13">
+<defs>
+<linearGradient id="fadeGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="0.4" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+<mask id="fade" maskUnits="userSpaceOnUse" x="420" y="100" width="180" height="46"><rect x="420" y="100" width="180" height="46" fill="url(#fadeGrad)"/></mask>
+</defs>
 <rect width="620" height="260" rx="12" fill="#DFE3EA"/>
 <rect width="620" height="26" rx="12" fill="#F6F6F8" fill-opacity="0.85"/>
 <rect y="14" width="620" height="12" fill="#F6F6F8" fill-opacity="0.85"/>
@@ -27,9 +31,11 @@
 <g>
 <rect x="420" y="73" width="180" height="94" rx="8" fill="#FFFFFF" stroke="#C4C4C9"/>
 <text x="432" y="94" font-size="10" font-weight="600" letter-spacing="0.5" fill="#6E6E73">PREVIEW</text>
-<text x="432" y="112" font-size="11" fill="#1D1D1F">Quarterly Planning Notes:</text>
-<text x="432" y="127" font-size="11" fill="#1D1D1F">The Hardware Team Wants To</text>
-<text x="432" y="142" font-size="11" fill="#1D1D1F">Move The Sensor Firmware…</text>
+<g mask="url(#fade)" font-size="11" fill="#1D1D1F">
+<text x="432" y="112">Quarterly Planning Notes:</text>
+<text x="432" y="127">The Hardware Team Wants To</text>
+<text x="432" y="142">Move The Sensor Firmware Re</text>
+</g>
 <text x="432" y="158" font-size="10" fill="#6E6E73">2,418 characters</text>
 </g>
 </svg>

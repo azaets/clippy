@@ -9,6 +9,7 @@ import ServiceManagement
     let previewText = NSTextField(wrappingLabelWithString: "")
     let previewCount = NSTextField(labelWithString: "")
     let previewStack: NSStackView
+    let fade = CAGradientLayer()  // masks the text so a clipped third line fades out
 
     override init() {
         let menu = NSMenu()
@@ -31,8 +32,14 @@ import ServiceManagement
         header.font = .systemFont(ofSize: 10, weight: .semibold)
         header.textColor = .secondaryLabelColor
         previewText.font = .systemFont(ofSize: 11)
-        previewText.maximumNumberOfLines = 3  // wraps, then ellipsizes the third line; a truncating lineBreakMode would stop the wrapping
+        previewText.maximumNumberOfLines = 3  // wraps, then clips; a truncating lineBreakMode would stop the wrapping
+        previewText.cell?.truncatesLastVisibleLine = false  // no ellipsis: overflow fades out instead (see fade)
         previewText.preferredMaxLayoutWidth = 150
+        previewText.wantsLayer = true
+        fade.colors = [NSColor.black.cgColor, NSColor.black.cgColor, NSColor.clear.cgColor]
+        fade.locations = [0, 0.4, 1]
+        fade.startPoint = CGPoint(x: 0.5, y: 1)  // layer space is y-up: opaque at the top, clear at the bottom
+        fade.endPoint = CGPoint(x: 0.5, y: 0)
         previewCount.font = .systemFont(ofSize: 10)
         previewCount.textColor = .secondaryLabelColor
         let stack = previewStack
@@ -107,6 +114,12 @@ import ServiceManagement
         previewText.stringValue = f(String(s.prefix(200)))  // 3 lines never show more than this
         previewCount.stringValue = "\(s.count.formatted()) characters"
         preview.setContentSize(NSSize(width: 170, height: previewStack.fittingSize.height))  // 1 to 3 lines tall, no empty space
+        previewStack.layoutSubtreeIfNeeded()
+        // fade only when text is cut off; short text stays fully readable
+        let font = previewText.font!
+        let needed = (previewText.stringValue as NSString).boundingRect(with: NSSize(width: 150, height: CGFloat.greatestFiniteMagnitude), options: .usesLineFragmentOrigin, attributes: [.font: font]).height
+        fade.frame = previewText.bounds
+        previewText.layer?.mask = needed > NSLayoutManager().defaultLineHeight(for: font) * 3 + 1 ? fade : nil
         // the menu hangs below the status item, left-aligned with it; flip the card left when the status item is near the screen edge
         var x = bar.frame.minX + menu.size.width + 6
         if x + preview.frame.width > screen.frame.maxX { x = bar.frame.minX - 6 - preview.frame.width }
