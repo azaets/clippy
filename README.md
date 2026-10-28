@@ -13,14 +13,19 @@ A tiny macOS menu bar app that changes the text on your clipboard in one click. 
 
 - **UPPERCASE**, **lowercase** and **Title Case**
 - **Remove Formatting**: turns rich text (from web pages, Word, Pages, etc.) into plain text
+- **Hover preview**: hover an option to see the first three lines of its result next to the menu
 - **Launch at Login** toggle (uses the system Login Items)
 - Plain Swift and AppKit, one source file, no dependencies
 
 ## Usage
 
 1. Copy some text (`Cmd+C`).
-2. Click the Clippy icon in the menu bar and choose a transformation.
+2. Click the Clippy icon in the menu bar. Hover an option to preview the result, then click it to apply.
 3. Paste (`Cmd+V`) the result.
+
+<p align="center"><img src="assets/mockup.svg" alt="Clippy menu with the Title Case option hovered and a preview of the result beside it" width="620"></p>
+
+The preview shows at most three lines of the transformed text plus the clipboard's character count, so a large clipboard never fills the screen.
 
 | You copy | You choose | You paste |
 | --- | --- | --- |
