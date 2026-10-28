@@ -38,8 +38,8 @@ import ServiceManagement
         previewText.wantsLayer = true
         fade.colors = [NSColor.black.cgColor, NSColor.black.cgColor, NSColor.clear.cgColor]
         fade.locations = [0, 0.4, 1]
-        fade.startPoint = CGPoint(x: 0.5, y: 1)  // layer space is y-up: opaque at the top, clear at the bottom
-        fade.endPoint = CGPoint(x: 0.5, y: 0)
+        fade.startPoint = CGPoint(x: 0.5, y: 0)  // the label's layer is flipped, so y=0 is the top: opaque at the top, clear at the bottom
+        fade.endPoint = CGPoint(x: 0.5, y: 1)
         previewCount.font = .systemFont(ofSize: 10)
         previewCount.textColor = .secondaryLabelColor
         let stack = previewStack
